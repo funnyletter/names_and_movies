@@ -10,7 +10,7 @@
 library(shiny)
 
 # Define UI for application that draws a histogram
-shinyUI(navbarPage("My Application",
+shinyUI(navbarPage("Names in Movies",
                    tabPanel("Plot Baby Names",
                             sidebarLayout(
                               sidebarPanel(

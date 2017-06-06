@@ -10,6 +10,8 @@
 library(shiny)
 source('names_and_movies.R')
 
+# Connect to SQLite DB
+my_db <- dbConnect(SQLite(), "names_and_movies.sqlite")
 
 shinyServer(function(input, output) {
   
@@ -28,9 +30,10 @@ shinyServer(function(input, output) {
   # Output a table of characters with the selected name, what film they are from, and the release
   # year for that film.
   output$movieList <- renderTable({
-    movie_list <- movies_by_name(my_name(), movies)
+    movie_list <- movies_by_name(my_name(), my_db)
     if(!is.null(movie_list)) {
-      colnames(movie_list) <- c("Character", "Movie", "Year")
+      movie_list <- select(movie_list, character, actor, title, year)
+      colnames(movie_list) <- c("Character", "Actor", "Movie", "Year")
       movies_exist(TRUE)
       movie_list
     } else {
@@ -50,9 +53,9 @@ shinyServer(function(input, output) {
   
   # Plot the name if it exists in the SSA data, with lines for movie years if they exist
   output$namePlot <- renderPlot({
-    if(!is.null(get_baby_name(my_name()))) {
+    if(!is.null(get_baby_name(my_name(), my_db))) {
       name_exists(TRUE)
-      plot_name(my_name(), babynames, movies)
+      plot_name(my_name(), my_db)
     } else {
       name_exists(NULL)
       NULL
