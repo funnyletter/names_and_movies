@@ -1,0 +1,91 @@
+doctor
+professor
+king
+queen
+prince
+princess
+duke
+duchess
+lord
+lady
+count
+countess
+Second Lieutenant	
+Ensign	
+Second Lieutenant
+First Lieutenant	
+Lieutenant Junior Grade	
+First Lieutenant
+Captain	
+Lieutenant	
+Captain
+Major	
+Lieutenant Commander	
+Major	
+Lieutenant Colonel	
+Commander	
+Lieutenant Colonel
+Colonel	
+Captain	Colonel
+Brigadier General	
+Rear Admiral	
+Brigadier General
+Major General	
+Rear Admiral	
+Major General
+Lieutenant General	
+Vice Admiral	
+Lieutenant General
+General	
+Admiral	
+General
+Private
+Seaman
+Corporal
+Sergeant
+Staff Sergeant
+Airman
+the
+voice
+young
+old
+commissioner
+pilot
+sheik
+mother
+father
+ss
+funerary
+undertaker
+master
+agent
+le
+sir
+madam
+coach
+secretary
+mayor
+stinky
+amidala
+grandmother
+grandfather
+chairman
+bishop
+vice
+president
+borg
+gatesman
+governor
+potato
+head
+sister
+brother
+uncle
+aunt
+detective
+officer
+adult
+1st
+assistant
+pharoah
+
