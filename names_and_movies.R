@@ -54,7 +54,7 @@ get_baby_name <- function(name, db) {
 
 
 movies_by_year <- function(my_year, db) {
-  if(my_year >= 1966 & my_year <= 2017) {
+  if(my_year >= 1966 & my_year < 2017) {
     mymovies <- dbGetQuery(db, "SELECT * FROM cast 
                            JOIN movies ON movie_id = id 
                            WHERE year = :a",

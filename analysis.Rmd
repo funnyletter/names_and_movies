@@ -1,0 +1,99 @@
+---
+title: "Names in Film"
+author: "Rachel Schirra"
+date: "June 8, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+source("analysis.R")
+library(knitr)
+```
+
+# Fun With Name Popularity and Film
+
+#### What percentage of film characters' names are in the 1000 most popular names the year the film was released?
+
+Do movie characters usually have popular names, or unpopular ones?
+
+```{r characters_top_1000}
+top_names_percent <- count_top_names(1000)
+
+top_names_graph <- ggplot(data = top_names_percent, aes(x = year, y = percent_top_names)) +
+  geom_line(size = 1, color = "blue") +
+  theme_classic() + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ggtitle("Percentage of Movie Characters with Names in Top 1000") +
+  xlab("Year") +
+  ylab("% Character Names in Top 1000") +
+  scale_y_continuous(limits = c(0, 100))
+top_names_graph
+```
+
+Actually, though, the top 1000 names includes the vast majority of names Usually the lowest ranked names were given to 20 children or less and are not what would typically be considered popular names; it includes names like Halimatou, Jahari, Ferran, and Danarius.
+
+Perhaps it makes more sense to look at the top 100 names for that year?
+
+```{r characters_top_100}
+top_100_percent <- count_top_names(100)
+
+top_names_graph <- ggplot(data = top_100_percent, aes(x = year, y = percent_top_names)) +
+  geom_line(size = 1, color = "blue") +
+  theme_classic() + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ggtitle("Percentage of Movie Characters with Names in Top 100") +
+  xlab("Year") +
+  ylab("% Character Names in Top 100") +
+  scale_y_continuous(limits = c(0, 100))
+top_names_graph
+```
+
+Much less! It looks like consistently less than 25% of movie characters (an average of `r paste(round(mean(top_100_percent$percent_top_names), 2), "%", sep = "")`) have names in the top 100 the year the film was released. That's not many! And on average `r paste(round(mean(top_names_percent$percent_top_names), 2), "%", sep = "")` have names in the top 1000 at all. So about `r paste(round(100 - mean(top_names_percent$percent_top_names), 2), "%", sep = "")` of film characters have quite unusual names.
+
+#### Unpopular character names
+
+What about characters who have *really* unusual names? Let's see how many characters have names that have never been in the top 1000 baby names, ever.
+
+Since the Social Security Administration started recording in 1880, 96,174 names have been in the top 1000 popular names. That's a lot of names.
+
+```{r unusual_names}
+unusual_names <- count_unusual_names()
+
+ggplot(data = unusual_names, aes(x = year, y = percent_unique_names)) +
+  geom_line(size = 1, color = "blue") +
+  theme_classic() + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ggtitle("Percentage of Movie Characters with Unusual Names") +
+  xlab("Year") +
+  ylab("% Character Names Never in Top 1000") +
+  scale_y_continuous(limits = c(0, 100))
+```
+
+On average, `r paste(round(mean(unusual_names$percent_unique_names), 2), "%", sep = "")` of film characters' names never occur in the top 1000 names. Some years have a rather high rate of unusual names; let's take a look at films from those years and see what might be happening.
+
+```{r unusual_name_films}
+strange_years <- head(arrange(unusual_names, desc(percent_unique_names)), 4)
+
+strange_years
+```
+
+It looks like the years 1966, 1970, 1971, and 1981 have the highest number of uncommon names, all with over 25%. Let's take a closer look at each of those years.
+
+```{r names_1966}
+unique_names <- dbGetQuery(my_db, "SELECT DISTINCT(name) FROM babynames")$name %>%
+  tolower()
+
+movies <- movies_by_year(1966, my_db) %>%
+  select(title, character) 
+
+movies$in_top_1000 <- apply(select(movies, character), 1, is_top_name, unique_names)
+
+movies %>% 
+  group_by(title) %>% 
+  summarize(unusual_names = sum(in_top_1000 == FALSE)) %>% 
+  arrange(desc(unusual_names)) %>%
+  kable()
+```
+

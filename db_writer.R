@@ -1,5 +1,4 @@
 library("RSQLite")
-library("babynames")
 library("dplyr")
 library("lubridate")
 
@@ -14,9 +13,13 @@ db <- dbConnect(SQLite(), db = "names_and_movies.sqlite")
 
 ## Import data from SSA text files into R
 # Reads and cleans an individual SSA data file
+# Adds name rank data to SSA file
 read_ssa_data <- function(filename) {
   data <- read.csv(filename, header = FALSE, stringsAsFactors = FALSE)
   colnames(data) <- c("name", "sex", "count")
+  data <- data %>% 
+    group_by(sex) %>%
+    mutate(rank = dense_rank(desc(count)))
   data$year <- as.numeric(gsub("\\D", "", filename))
   return(data)
 }
@@ -26,7 +29,7 @@ concat_ssa_data <- function(directory) {
   all_files <- dir(directory)
   agg <- data.frame()
   for(file in all_files) {
-    agg <- rbind(agg, read_ssa_data(paste(directory, "/", file, sep = "")))
+    agg <- rbind(agg, as.data.frame(read_ssa_data(paste(directory, "/", file, sep = ""))))
   }
   return(agg)
 }
@@ -41,6 +44,7 @@ movies <- read.csv("movies.csv", stringsAsFactors = FALSE) %>%
   mutate(release_date = mdy(release_date), year = year(release_date))
 
 cast <- read.csv("cast.csv", stringsAsFactors = FALSE)
+cast <- filter(cast, character != "")
 
 # Write data to SQLite DB tables. Note that this will overwrite existing tables, NOT append to them.
 dbWriteTable(conn = db, name = "babynames", value = babynames, overwrite = TRUE)
